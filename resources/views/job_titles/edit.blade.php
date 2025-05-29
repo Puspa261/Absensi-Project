@@ -1,0 +1,49 @@
+@extends('layouts.main')
+@section('content')
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center py-2">
+                    <a href="{{ route('job_titles.index') }}" class="btn btn-icon back">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </a>
+                    <h5 class="card-title fw-semibold mt-2">Edit Data Jabatan</h5>
+                </div>
+
+                @if ($errors->any())
+                    <div class="alert alert-danger mx-4 mb-0">
+                        <strong>Whoops!</strong> There were some problems with your
+                        input.<br>
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <div class="card">
+                    <div class="card-body">
+                        <form action="{{ route('job_titles.update', $jobTitles->id) }}" method="POST">
+                            @csrf
+                            @method('PATCH')
+
+                            <div class="mb-3">
+                                <label for="position" class="form-label">Posisi</label>
+                                <input type="text" name="position" class="form-control" id="position"
+                                    value="{{ $jobTitles->position }}" autofocus required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="division" class="form-label">Divisi</label>
+                                <input type="text" name="division" class="form-control" id="division"
+                                    value="{{ $jobTitles->division }}" required>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endsection
