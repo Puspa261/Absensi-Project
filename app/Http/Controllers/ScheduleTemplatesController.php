@@ -43,12 +43,11 @@ class ScheduleTemplatesController extends Controller
                                         </a>';
                     // }
 
-                    $btn .= '<form action="' . route('schedules.destroy', $row->id) . '"method="POST"
-                                    onsubmit="return confirm(\'Are you sure you want to delete this item?\')">';
+                    $btn .= '<form id="delete-form-' . $row->id . '" action="' . route('schedules.destroy', $row->id) . '"method="POST">';
 
                     // if (Auth::user()->can('admin-delete')) {
                     $btn .= csrf_field() . method_field('DELETE') . '
-                                    <button type="submit" class="btn btn-danger delete-btn"> 
+                                    <button type="button" class="btn btn-danger delete-btn" onclick="confirmDelete(' . $row->id . ')"> 
                                         <i class="bx bx-trash"></i>
                                     </button>';
                     // }

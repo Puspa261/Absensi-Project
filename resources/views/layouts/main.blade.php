@@ -88,6 +88,9 @@
 
     <script src="https://kit.fontawesome.com/0d45b0b84c.js" crossorigin="anonymous"></script>
 
+    {{-- Sweet Alert --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     @stack('scripts')
 </body>
 
