@@ -37,7 +37,7 @@
                             <div class="mb-3">
                                 <label for="division" class="form-label">Divisi</label>
                                 <input type="text" name="division" class="form-control" id="division"
-                                    value="{{ $jobTitles->division }}" required>
+                                    value="{{ $jobTitles->division }}">
                             </div>
 
                             <button type="submit" class="btn btn-primary">Submit</button>

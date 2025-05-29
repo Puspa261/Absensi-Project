@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('images')->nullable();
-            $table->string('job_title');
+            $table->foreignId('id_job')->constrained('job_titles')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('employee_number')->unique();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();

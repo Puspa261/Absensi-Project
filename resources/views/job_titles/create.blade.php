@@ -35,7 +35,7 @@
                             <div class="mb-3">
                                 <label for="division" class="form-label">Divisi</label>
                                 <input type="text" name="division" class="form-control" id="division"
-                                    placeholder="cth: Web Development" required>
+                                    placeholder="cth: Web Development (Opsional)">
                             </div>
 
                             <button type="submit" class="btn btn-primary">Submit</button>

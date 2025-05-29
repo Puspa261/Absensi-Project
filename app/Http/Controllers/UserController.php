@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\JobTitles;
 use App\Models\User;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Hash;
 use Yajra\DataTables\Facades\DataTables;
 
 class UserController extends Controller
@@ -20,8 +24,13 @@ class UserController extends Controller
                     ->where(function ($query) use ($search_value) {
                         $query
                             ->where('name', 'like', $search_value)
-                            ->orWhere('job_tittle', 'like', $search_value)
-                            ->orWhere('employee_number', 'like', $search_value);
+                            ->orWhere('employee_number', 'like', $search_value)
+                            ->orWhereHas('job', function ($query) use ($search_value) {
+                                $query->where('position', 'like', $search_value);
+                            })
+                            ->orWhereHas('job', function ($query) use ($search_value) {
+                                $query->where('division', 'like', $search_value);
+                            });
                     });
             }
 
@@ -54,6 +63,9 @@ class UserController extends Controller
                     $btn .= '</form></div>';
                     return $btn;
                 })
+                ->addColumn('job', function ($row) {
+                    return $row->job->position . " " . $row->job->division;
+                })
                 ->rawColumns(['action'])
                 ->make(true);
         }
@@ -66,70 +78,130 @@ class UserController extends Controller
      */
     public function create()
     {
-        // $job_titles = ['Magang', 'Mentor - '];
-
-        return view('schedules.create', compact('days'));
+        $jobs = JobTitles::orderBy('division', 'asc')
+            ->orderBy('position', 'asc')
+            ->get();
+        return view('users.create', compact('jobs'));
     }
 
     // /**
     //  * Store a newly created resource in storage.
     //  */
-    // public function store(Request $request)
-    // {
-    //     ScheduleTemplates::create($request->all());
+    public function store(Request $request)
+    {
+        // dd($request->all());
+        $request->validate([
+            'employee_number' => 'numeric|unique:users,employee_number',
+            'email' => 'email|unique:users,email',
+            'password' => 'same:confirm-password',
+            'image' => 'image|mimes:jpeg,png,jpg',
+        ], [
+            'employee_number.numeric' => 'Nomor pegawai wajib berisikan angka',
+            'employee_number.unique' => 'Nomor pegawai sudah terdaftar',
+            'email.unique' => 'Email sudah terdaftar',
+        ]);
 
-    //     return redirect()->route('schedules.index')
-    //         ->with('success', 'Jadwal berhasil dibuat');
-    // }
+        $input = $request->all();
+
+        $input['password'] = Hash::make($request->password);
+
+
+        if ($image = $request->file('image')) {
+            $destinationPath = 'imageUser/';
+            $profileImage = $request->name . "-" . date('YmdHis') . "." . $image->getClientOriginalExtension();
+            $image->move($destinationPath, $profileImage);
+            $input['image'] = $profileImage;
+        } else {
+            $input['image'] = 'ikon.jpg';
+        }
+
+        $user = User::create($input);
+        // $user->assignRole($request->input('roles'));
+
+        return redirect()->route('users.index')
+            ->with('success', 'Pegawai berhasil dibuat');
+    }
 
     // /**
     //  * Display the specified resource.
     //  */
-    // public function show($id)
-    // {
-    //     $scheduleTemplates = ScheduleTemplates::findOrFail($id);
+    public function show($id)
+    {
+        $users = User::findOrFail($id);
 
-    //     return view('schedules.show', [
-    //         'scheduleTemplates' => $scheduleTemplates
-    //     ]);
-    // }
+        return view('users.show', [
+            'users' => $users
+        ]);
+    }
 
     // /**
     //  * Show the form for editing the specified resource.
     //  */
-    // public function edit($id)
-    // {
-    //     $scheduleTemplates = ScheduleTemplates::findOrFail($id);
+    public function edit($id)
+    {
+        $users = User::findOrFail($id);
 
-    //     $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        $jobs = JobTitles::orderBy('division', 'asc')
+            ->orderBy('position', 'asc')
+            ->get();
 
-    //     return view('schedules.edit', compact('scheduleTemplates', 'days'));
-    // }
+        return view('users.edit', compact('users', 'jobs'));
+    }
 
     // /**
     //  * Update the specified resource in storage.
     //  */
-    // public function update(Request $request, $id)
-    // {
-    //     $scheduleTemplates = ScheduleTemplates::findOrFail($id);
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'employee_number' => 'numeric|unique:users,employee_number',
+            'email' => 'email|unique:users,email',
+            'password' => 'same:confirm-password',
+            'image' => 'image|mimes:jpeg,png,jpg',
+        ], [
+            'employee_number.numeric' => 'Nomor pegawai wajib berisikan angka',
+            'employee_number.unique' => 'Nomor pegawai sudah terdaftar',
+            'email.unique' => 'Email sudah terdaftar',
+        ]);
 
-    //     $scheduleTemplates->update($request->all());
+        $input = $request->all();
 
-    //     return redirect()->route('schedules.index')
-    //         ->with('success', 'Jadwal berhasil diperbarui');
-    // }
+        if (!empty($input['password'])) {
+            $input['password'] = Hash::make($input['password']);
+        } else {
+            $input = Arr::except($input, array('password'));
+        }
+
+        if ($image = $request->file('image')) {
+            $destinationPath = 'imageUser/';
+            $profileImage = $request->name . "-" . date('YmdHis') . "." . $image->getClientOriginalExtension();
+            $image->move($destinationPath, $profileImage);
+            $input['image'] = $profileImage;
+        } else {
+            unset($input['image']);
+        }
+
+        $user = user::find($id);
+        $user->update($input);
+
+        // DB::table('model_has_roles')->where('model_id', $id)->delete();
+        // $user->assignRole($request->input('roles'));
+
+        return redirect()->route('users.index')
+            ->with('success', 'Pegawai berhasil diperbarui');
+    }
 
 
     // /**
     //  * Remove the specified resource from storage.
     //  */
-    // public function destroy($id)
-    // {
-    //     $scheduleTemplates = ScheduleTemplates::findOrFail($id);
+    public function destroy($id)
+    {
+        $users = User::findOrFail($id);
 
-    //     $scheduleTemplates->delete();
+        $users->delete();
 
-    //     return redirect()->route('schedules.index')
-    //         ->with('success', 'Jadwal berhasil dihapus');
-    // }
+        return redirect()->route('users.index')
+            ->with('success', 'Pegawai berhasil dihapus');
+    }
 }

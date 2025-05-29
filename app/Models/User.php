@@ -45,4 +45,10 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    // Di model Employee
+    public function job()
+    {
+        return $this->belongsTo(JobTitles::class);
+    }
 }
