@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\LayoutController;
 use App\Http\Controllers\ScheduleTemplatesController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -11,3 +12,4 @@ Route::get('/', function () {
 Route::get('dashboard', [LayoutController::class, 'dashboard'])->name('dashboard');
 
 Route::resource('schedules', ScheduleTemplatesController::class);
+Route::resource('users', UserController::class);
