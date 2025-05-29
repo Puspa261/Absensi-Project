@@ -37,7 +37,7 @@
 
                             <div class="mb-3">
                                 <label for="job" class="form-label">Jabatan</label>
-                                <select id="job" class="form-select" name="job" required>
+                                <select id="job" class="form-select" name="id_job" required>
                                     <option value="">Pilih Jabatan</option>
                                     @foreach ($jobs as $job)
                                         <option value="{{ $job['id'] }}">{{ $job['position'] }} {{ $job['division'] }}

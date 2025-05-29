@@ -4,10 +4,10 @@
         <div class="card">
             <div class="card-body">
                 <div class="d-flex align-items-center py-2">
-                    <a href="{{ route('schedules.index') }}" class="btn btn-icon back">
+                    <a href="{{ route('users.index') }}" class="btn btn-icon back">
                         <i class="fa-solid fa-arrow-left"></i>
                     </a>
-                    <h5 class="card-title fw-semibold mt-2">Edit Data Jadwal</h5>
+                    <h5 class="card-title fw-semibold mt-2">Edit Data Pegawai</h5>
                 </div>
 
                 @if ($errors->any())
@@ -24,33 +24,62 @@
 
                 <div class="card">
                     <div class="card-body">
-                        <form action="{{ route('schedules.update', $scheduleTemplates->id) }}" method="POST">
+                        <form action="{{ route('users.update', $users->id) }}" enctype="multipart/form-data" method="POST">
                             @csrf
                             @method('PATCH')
 
                             <div class="mb-3">
-                                <label for="day" class="form-label">Hari</label>
-                                <select id="day" class="form-select" name="day" required>
-                                    <option value="">Pilih Hari</option>
-                                    @foreach ($days as $day)
-                                        <option value="{{ $day }}"
-                                            {{ $day == $scheduleTemplates->day ? 'selected' : '' }}>
-                                            {{ $day }}
+                                <label for="name" class="form-label">Nama</label>
+                                <input type="text" name="name" class="form-control" id="name"
+                                    value="{{ $users->name }}" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="job" class="form-label">Jabatan</label>
+                                <select id="job" class="form-select" name="id_job" required>
+                                    <option value="">Pilih Jabatan</option>
+                                    @foreach ($jobs as $job)
+                                        <option value="{{ $job->id }}"
+                                            {{ $job->id == $users->id_job ? 'selected' : '' }}>
+                                            {{ $job->position }} {{ $job->division }}
                                         </option>
                                     @endforeach
                                 </select>
                             </div>
 
                             <div class="mb-3">
-                                <label for="start_time" class="form-label">Waktu Mulai</label>
-                                <input type="time" name="start_time" class="form-control" id="start_time"
-                                    value="{{ $scheduleTemplates->start_time }}" required>
+                                <label for="employee_number" class="form-label">Nomor Pegawai</label>
+                                <input type="number" name="employee_number" class="form-control" id="employee_number"
+                                    value="{{ $users->employee_number }}" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="end_time" class="form-label">Waktu Selesai</label>
-                                <input type="time" name="end_time" class="form-control" id="end_time"
-                                    value="{{ $scheduleTemplates->end_time }}" required>
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" name="email" class="form-control" id="email"
+                                    value="{{ $users->email }}" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label" for="password">Password</label>
+                                <input type="password" id="password" class="form-control" name="password"
+                                    placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
+                                    aria-describedby="password" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label" for="password">Confirm Password</label>
+                                <input type="password" id="confirm-password" class="form-control" name="confirm-password"
+                                    placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
+                                    aria-describedby="confirm-password" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Image</label>
+                                <div class="card border mb-2" style="max-width: 14rem; max-height: 14rem;">
+                                    <img src="/imageUser/{{ $users->image }}" class="card-img" alt="image"
+                                        style="max-width: 14rem; max-height: 14rem; object-fit: cover">
+                                </div>
+                                <input type="file" class="form-control" id="basic-default-image" name="image" />
                             </div>
 
                             <button type="submit" class="btn btn-primary">Submit</button>

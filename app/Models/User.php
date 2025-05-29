@@ -21,6 +21,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'image',
+        'id_job',
+        'employee_number'
     ];
 
     /**
@@ -49,6 +52,6 @@ class User extends Authenticatable
     // Di model Employee
     public function job()
     {
-        return $this->belongsTo(JobTitles::class);
+        return $this->belongsTo(JobTitles::class, 'id_job');
     }
 }

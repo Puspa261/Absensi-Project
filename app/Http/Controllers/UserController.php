@@ -7,6 +7,8 @@ use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -16,7 +18,7 @@ class UserController extends Controller
     {
         if ($request->ajax()) {
 
-            $query_data = User::query();
+            $query_data = User::with('job');
 
             if ($request->sSearch) {
                 $search_value = '%' . $request->sSearch . '%';
@@ -89,7 +91,6 @@ class UserController extends Controller
     //  */
     public function store(Request $request)
     {
-        // dd($request->all());
         $request->validate([
             'employee_number' => 'numeric|unique:users,employee_number',
             'email' => 'email|unique:users,email',
@@ -101,25 +102,37 @@ class UserController extends Controller
             'email.unique' => 'Email sudah terdaftar',
         ]);
 
-        $input = $request->all();
+        DB::beginTransaction();
+        try {
+            $input = $request->all();
+            $input['password'] = Hash::make($request->password);
 
-        $input['password'] = Hash::make($request->password);
+            // Default image jika tidak upload
+            $filename = 'ikon.jpg';
 
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $filename = $request->name . "-" . date('YmdHis') . "." . $image->getClientOriginalExtension();
+                $image->move(public_path('imageUser'), $filename);
+            }
 
-        if ($image = $request->file('image')) {
-            $destinationPath = 'imageUser/';
-            $profileImage = $request->name . "-" . date('YmdHis') . "." . $image->getClientOriginalExtension();
-            $image->move($destinationPath, $profileImage);
-            $input['image'] = $profileImage;
-        } else {
-            $input['image'] = 'ikon.jpg';
+            $input['image'] = $filename;
+
+            User::create($input);
+            DB::commit();
+
+            return redirect()->route('users.index')
+                ->with('success', 'Pegawai berhasil dibuat');
+        } catch (\Exception $e) {
+            DB::rollback();
+
+            // Hapus file kalau sudah terlanjur terupload
+            if ($filename !== 'ikon.jpg' && File::exists(public_path('imageUser/' . $filename))) {
+                File::delete(public_path('imageUser/' . $filename));
+            }
+
+            return back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])->withInput();
         }
-
-        $user = User::create($input);
-        // $user->assignRole($request->input('roles'));
-
-        return redirect()->route('users.index')
-            ->with('success', 'Pegawai berhasil dibuat');
     }
 
     // /**
@@ -153,42 +166,62 @@ class UserController extends Controller
     //  */
     public function update(Request $request, $id)
     {
+        // dd($request->all());
         $request->validate([
-            'employee_number' => 'numeric|unique:users,employee_number',
-            'email' => 'email|unique:users,email',
-            'password' => 'same:confirm-password',
-            'image' => 'image|mimes:jpeg,png,jpg',
+            'employee_number' => 'numeric|unique:users,employee_number,' . $id,
+            'email' => 'email|unique:users,email,' . $id,
+            'password' => 'nullable|same:confirm-password',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg',
         ], [
             'employee_number.numeric' => 'Nomor pegawai wajib berisikan angka',
             'employee_number.unique' => 'Nomor pegawai sudah terdaftar',
             'email.unique' => 'Email sudah terdaftar',
         ]);
 
-        $input = $request->all();
+        DB::beginTransaction();
+        try {
+            $users = User::findOrFail($id);
+            $input = $request->all();
 
-        if (!empty($input['password'])) {
-            $input['password'] = Hash::make($input['password']);
-        } else {
-            $input = Arr::except($input, array('password'));
+            // Handle password
+            if (!empty($input['password'])) {
+                $input['password'] = Hash::make($input['password']);
+            } else {
+                $input = Arr::except($input, ['password']);
+            }
+
+            // Handle image upload
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $filename = $request->name . "-" . date('YmdHis') . "." . $image->getClientOriginalExtension();
+                $image->move(public_path('imageUser'), $filename);
+
+                // Hapus gambar lama jika bukan default
+                if ($users->image && $users->image !== 'ikon.jpg') {
+                    $oldPath = public_path('imageUser/' . $users->image);
+                    if (File::exists($oldPath)) {
+                        File::delete($oldPath);
+                    }
+                }
+
+                $input['image'] = $filename;
+            }
+
+            $users->update($input);
+            DB::commit();
+
+            return redirect()->route('users.index')
+                ->with('success', 'Pegawai berhasil diperbarui');
+        } catch (\Exception $e) {
+            DB::rollback();
+
+            // Hapus gambar baru jika upload berhasil tapi DB gagal
+            if (isset($filename) && File::exists(public_path('imageUser/' . $filename))) {
+                File::delete(public_path('imageUser/' . $filename));
+            }
+
+            return back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])->withInput();
         }
-
-        if ($image = $request->file('image')) {
-            $destinationPath = 'imageUser/';
-            $profileImage = $request->name . "-" . date('YmdHis') . "." . $image->getClientOriginalExtension();
-            $image->move($destinationPath, $profileImage);
-            $input['image'] = $profileImage;
-        } else {
-            unset($input['image']);
-        }
-
-        $user = user::find($id);
-        $user->update($input);
-
-        // DB::table('model_has_roles')->where('model_id', $id)->delete();
-        // $user->assignRole($request->input('roles'));
-
-        return redirect()->route('users.index')
-            ->with('success', 'Pegawai berhasil diperbarui');
     }
 
 
@@ -197,11 +230,18 @@ class UserController extends Controller
     //  */
     public function destroy($id)
     {
-        $users = User::findOrFail($id);
+        $user = User::findOrFail($id);
 
-        $users->delete();
+        // Pastikan bukan file default
+        if ($user->image && $user->image !== 'ikon.jpg') {
+            $imagePath = public_path('imageUser/' . $user->image);
+            if (File::exists($imagePath)) {
+                File::delete($imagePath);
+            }
+        }
 
-        return redirect()->route('users.index')
-            ->with('success', 'Pegawai berhasil dihapus');
+        $user->delete();
+
+        return redirect()->route('users.index')->with('success', 'Pegawai berhasil dihapus.');
     }
 }
