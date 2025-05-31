@@ -132,4 +132,42 @@ class AttendanceController extends Controller
     //     return redirect()->route('schedules.index')
     //         ->with('success', 'Jadwal berhasil dihapus');
     // }
+
+    public function create()
+    {
+        return view('attendances.create');
+    }
+
+    // public function store(Request $request)
+    // {
+    //     dd($request->all());
+    // }
+
+    public function store(Request $request)
+    {
+        $userLat = $request->latitude;
+        $userLong = $request->longitude;
+
+        // Koordinat kantor
+        $officeLat = -2.9589504;
+        $officeLong = 104.726528;
+
+        // Panggil fungsi dari model
+        $distance = Attendances::calculateDistance($userLat, $userLong, $officeLat, $officeLong);
+
+        // return response()->json([
+        //     'lat1' => $userLat,
+        //     'long1' => $userLong,
+        //     'lat2' => $officeLat,
+        //     'long2' => $officeLong,
+        //     'distance' => number_format($distance, 2),
+        //     'inside_zone' => $distance <= 0.05 // <= 50 meter
+        // ]);
+
+        if ($distance <= 0.05) {
+            return response()->json(['Berhasil']);
+        } else {
+            return response()->json(['Gagal']);
+        }
+    }
 }

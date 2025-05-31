@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\GeoController;
 use App\Http\Controllers\JobTitlesController;
 use App\Http\Controllers\LayoutController;
 use App\Http\Controllers\ScheduleTemplatesController;
@@ -15,3 +17,4 @@ Route::get('dashboard', [LayoutController::class, 'dashboard'])->name('dashboard
 Route::resource('schedules', ScheduleTemplatesController::class);
 Route::resource('users', UserController::class);
 Route::resource('job_titles', JobTitlesController::class);
+Route::resource('attendances', AttendanceController::class);
