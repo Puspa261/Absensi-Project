@@ -12,7 +12,7 @@
 
         <div class="mb-3">
             <label for="user" class="form-label">Pegawai</label>
-            <select id="user" class="form-select" name="id_user" required>
+            <select id="user" class="form-select" name="id_user" autofocus required>
                 <option value="">Pilih Pegawai</option>
                 @foreach ($users as $user)
                     <option value="{{ $user['id'] }}">{{ $user['name'] }}
@@ -23,12 +23,12 @@
 
         <div class="mb-3">
             <label for="date" class="form-label">Tanggal</label>
-            <input type="date" name="date" class="form-control" id="date" disabled>
+            <input type="date" name="date" class="form-control" id="date" readonly required>
         </div>
 
         <div class="mb-3">
             <label for="time_in" class="form-label">Waktu Hadir</label>
-            <input type="time" name="time_in" class="form-control" id="time_in" disabled>
+            <input type="time" name="time_in" class="form-control" id="time_in" readonly required>
         </div>
 
         <div class="mb-3">
@@ -38,15 +38,15 @@
 
         <div class="mb-3">
             <label for="latitude" class="form-label">Latitude</label>
-            <input type="text" name="latitude" class="form-control" id="latitude" disabled>
+            <input type="text" name="latitude_in" class="form-control" id="latitude" readonly required>
         </div>
 
         <div class="mb-3">
             <label for="longitude" class="form-label">Longitude</label>
-            <input type="text" name="longitude" class="form-control" id="longitude" disabled>
+            <input type="text" name="longitude_in" class="form-control" id="longitude" readonly required>
         </div>
 
-        <button type="submit">Simpan Lokasi</button>
+        <button type="submit" class="btn btn-primary">Submit</button>
     </form>
 @endsection
 @push('scripts')

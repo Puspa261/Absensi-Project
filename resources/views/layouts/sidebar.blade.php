@@ -54,7 +54,7 @@
                 </li>
 
                 <li class="sidebar-item">
-                    <a class="sidebar-link" href="{{ route('attendances_in.create') }}" aria-expanded="false">
+                    <a class="sidebar-link" href="{{ route('attendances_in.index') }}" aria-expanded="false">
                         <span>
                             <i class="ti ti-layout-dashboard"></i>
                         </span>

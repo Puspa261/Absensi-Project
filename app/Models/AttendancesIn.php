@@ -13,7 +13,7 @@ class AttendancesIn extends Model
 
     public function user()
     {
-        return $this->hasMany(User::class, 'id', 'id_user');
+        return $this->belongsTo(User::class, 'id_user');
     }
 
     public static function calculateDistance($lat1, $lon1, $lat2, $lon2)
