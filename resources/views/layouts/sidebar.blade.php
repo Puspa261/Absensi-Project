@@ -54,11 +54,11 @@
                 </li>
 
                 <li class="sidebar-item">
-                    <a class="sidebar-link" href="{{ route('attendances.create') }}" aria-expanded="false">
+                    <a class="sidebar-link" href="{{ route('attendances_in.create') }}" aria-expanded="false">
                         <span>
                             <i class="ti ti-layout-dashboard"></i>
                         </span>
-                        <span class="hide-menu">Kehadiran</span>
+                        <span class="hide-menu">Absen Masuk</span>
                     </a>
                 </li>
             </ul>

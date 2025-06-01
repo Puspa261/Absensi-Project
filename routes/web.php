@@ -1,11 +1,15 @@
 <?php
 
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\AttendancesInController;
+use App\Http\Controllers\AttendancesOutController;
 use App\Http\Controllers\GeoController;
 use App\Http\Controllers\JobTitlesController;
 use App\Http\Controllers\LayoutController;
 use App\Http\Controllers\ScheduleTemplatesController;
 use App\Http\Controllers\UserController;
+use App\Models\AttendancesIn;
+use App\Models\AttendancesOut;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -17,4 +21,5 @@ Route::get('dashboard', [LayoutController::class, 'dashboard'])->name('dashboard
 Route::resource('schedules', ScheduleTemplatesController::class);
 Route::resource('users', UserController::class);
 Route::resource('job_titles', JobTitlesController::class);
-Route::resource('attendances', AttendanceController::class);
+Route::resource('attendances_in', AttendancesInController::class);
+Route::resource('attendances_out', AttendancesOutController::class);

@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('attendances', function (Blueprint $table) {
+        Schema::create('attendances_outs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('id_user')->constrained('users')->cascadeOnUpdate()->cascadeOnDelete();
             $table->date('date');
-            $table->time('time_in')->nullable();
-            $table->string('latitude_in')->nullable();
-            $table->string('longitude_in')->nullable();
+            $table->time('time_out');
+            $table->string('latitude_out');
+            $table->string('longitude_out');
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('attendances');
+        Schema::dropIfExists('attendances_outs');
     }
 };
