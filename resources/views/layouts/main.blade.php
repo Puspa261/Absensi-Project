@@ -64,7 +64,7 @@
                                             <i class="ti ti-user fs-6"></i>
                                             <p class="mb-0 fs-3">My Profile</p>
                                         </a>
-                                        <a href="./authentication-login.html"
+                                        <a href="{{ route('logout') }}"
                                             class="btn btn-outline-primary mx-3 mt-2 d-block">Logout</a>
                                     </div>
                                 </div>
@@ -97,6 +97,18 @@
 
     {{-- Sweet Alert --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        @if (session('success'))
+            Swal.fire({
+                title: "Login Sukses!",
+                icon: "success",
+                text: "{{ session('success') }}",
+                showConfirmButton: false,
+                timer: 1500
+            });
+        @endif
+    </script>
 
     @stack('scripts')
 </body>

@@ -17,12 +17,16 @@ Route::get('/', function () {
     return view('auth.login');
 });
 
-Route::get('dashboard', [LayoutController::class, 'dashboard'])->name('dashboard');
+Route::get('dashboard', [LayoutController::class, 'dashboard'])->name('dashboard')->middleware('AuthCheck');;
 
-Route::resource('schedules', ScheduleTemplatesController::class);
-Route::resource('users', UserController::class);
-Route::resource('job_titles', JobTitlesController::class);
-Route::resource('attendances_in', AttendancesInController::class);
-Route::resource('attendances_out', AttendancesOutController::class);
+// CRUD
+Route::resource('schedules', ScheduleTemplatesController::class)->middleware('AuthCheck');;
+Route::resource('users', UserController::class)->middleware('AuthCheck');;
+Route::resource('job_titles', JobTitlesController::class)->middleware('AuthCheck');;
+Route::resource('attendances_in', AttendancesInController::class)->middleware('AuthCheck');;
+Route::resource('attendances_out', AttendancesOutController::class)->middleware('AuthCheck');;
 
+// Login
 Route::get('login', [AuthController::class, 'index'])->name('login');
+Route::post('post-login', [AuthController::class, 'postLogin'])->name('login.post');
+Route::get('logout', [AuthController::class, 'logout'])->name('logout');
