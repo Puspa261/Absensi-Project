@@ -3,6 +3,7 @@
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendancesInController;
 use App\Http\Controllers\AttendancesOutController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GeoController;
 use App\Http\Controllers\JobTitlesController;
 use App\Http\Controllers\LayoutController;
@@ -13,7 +14,7 @@ use App\Models\AttendancesOut;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('layouts.main');
+    return view('auth.login');
 });
 
 Route::get('dashboard', [LayoutController::class, 'dashboard'])->name('dashboard');
@@ -23,3 +24,5 @@ Route::resource('users', UserController::class);
 Route::resource('job_titles', JobTitlesController::class);
 Route::resource('attendances_in', AttendancesInController::class);
 Route::resource('attendances_out', AttendancesOutController::class);
+
+Route::get('login', [AuthController::class, 'index'])->name('login');
