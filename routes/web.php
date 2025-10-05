@@ -30,3 +30,7 @@ Route::resource('attendances_out', AttendancesOutController::class)->middleware(
 Route::get('login', [AuthController::class, 'index'])->name('login');
 Route::post('post-login', [AuthController::class, 'postLogin'])->name('login.post');
 Route::get('logout', [AuthController::class, 'logout'])->name('logout');
+
+// Absen
+Route::post('/absen-masuk', [AttendancesInController::class, 'store'])->name('absen.masuk')->middleware('AuthCheck');;
+Route::post('/absen-pulang', [AttendancesOutController::class, 'store'])->name('absen.pulang')->middleware('AuthCheck');;

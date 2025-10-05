@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\AttendancesIn;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 
 class AttendancesInController extends Controller
@@ -82,26 +84,62 @@ class AttendancesInController extends Controller
 
     public function store(Request $request)
     {
-        $userLat = $request->latitude;
-        $userLong = $request->longitude;
+        $user = Auth::user();
+        $tanggal = now()->toDateString();
+
+        // Validasi sederhana
+        $request->validate([
+            'time_in' => 'required',
+            'detail' => 'required',
+            'latitude_in' => 'required|numeric',
+            'longitude_in' => 'required|numeric',
+        ]);
 
         // Koordinat kantor
         $officeLat = -2.9589504;
         $officeLong = 104.726528;
 
-        // Panggil fungsi dari model
-        $distance = AttendancesIn::calculateDistance($userLat, $userLong, $officeLat, $officeLong);
+        // Hitung jarak (pakai fungsi model)
+        $distance = AttendancesIn::calculateDistance(
+            $request->latitude_in,
+            $request->longitude_in,
+            $officeLat,
+            $officeLong
+        );
 
-        $input = $request->all();
-        $input['distance'] = $distance;
+        // Cek absen hari ini
+        $cekAbsen = AttendancesIn::where('id_user', $user->id)
+            ->whereDate('date', $tanggal)
+            ->first();
 
-        // dd($request->all());
+        if ($cekAbsen) {
+            return response()->json([
+                'message' => 'Anda sudah absen masuk hari ini.'
+            ], 409);
+        }
 
-        AttendancesIn::create($input);
+        // Simpan absen masuk
+        AttendancesIn::create([
+            'id_user' => $user->id,
+            'date' => $tanggal,
+            'time_in' => $request->time_in,
+            'detail' => $request->detail,
+            'latitude_in' => $request->latitude_in,
+            'longitude_in' => $request->longitude_in,
+            'distance' => $distance,
+        ]);
 
-        return redirect()->route('attendances_in.index')
-            ->with('success', 'Absen berhasil dibuat');
+        return response()->json([
+            'message' => 'Absen masuk berhasil!',
+            'data' => [
+                'user' => $user->name,
+                'tanggal' => $tanggal,
+                'waktu' => $request->time_in,
+                'detail' => $request->detail
+            ]
+        ]);
     }
+
 
     /**
      * Display the specified resource.

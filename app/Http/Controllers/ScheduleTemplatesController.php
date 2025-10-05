@@ -102,7 +102,7 @@ class ScheduleTemplatesController extends Controller
     {
         $scheduleTemplates = ScheduleTemplates::findOrFail($id);
 
-        $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
 
         return view('schedules.edit', compact('scheduleTemplates', 'days'));
     }

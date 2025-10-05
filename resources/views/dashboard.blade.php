@@ -20,128 +20,135 @@
 @endsection
 
 @push('scripts')
-    {{-- <script>
-        // Data jadwal dari controller (hasil query dari ScheduleTemplates)
-        const jadwalAbsen = @json($day);
-
-        // Ambil hari ini (0 = Minggu, 1 = Senin, dst)
-        const hariSekarangIndex = new Date().getDay();
-        const hariMap = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-        const hariIni = hariMap[hariSekarangIndex];
-
-        // Cari jadwal sesuai hari dari database
-        const jadwalHariIni = jadwalAbsen.find(item => item.day === hariIni);
-
-        // Ambil jam mulai dan selesai (pastikan ada datanya)
-        const jamMulaiAbsen = jadwalHariIni ? jadwalHariIni.start_time : "00:00";
-        const jamSelesaiAbsen = jadwalHariIni ? jadwalHariIni.end_time : "00:00";
-
-        console.log(`Hari ini: ${hariIni}`);
-        console.log(`Jam mulai: ${jamMulaiAbsen}`);
-        console.log(`Jam selesai: ${jamSelesaiAbsen}`);
-
-        // Fungsi untuk update waktu realtime
-        function updateWaktu() {
-            const now = new Date();
-
-            // Format hari & jam
-            const hariArray = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-            document.getElementById("hariSekarang").textContent = hariArray[now.getDay()];
-
-            const jam = String(now.getHours()).padStart(2, "0");
-            const menit = String(now.getMinutes()).padStart(2, "0");
-            const detik = String(now.getSeconds()).padStart(2, "0");
-            const waktuSekarang = `${jam}:${menit}:${detik}`;
-            document.getElementById("jamSekarang").textContent = waktuSekarang;
-
-            // ===== ✅ Perbandingan waktu yang benar =====
-            // Konversi jam string menjadi detik total agar bisa dibandingkan dengan akurat
-            const toSeconds = (waktu) => {
-                const [h, m, s = 0] = waktu.split(":").map(Number);
-                return h * 3600 + m * 60 + s;
-            };
-
-            const waktuSekarangDetik = toSeconds(`${jam}:${menit}:${detik}`);
-            const mulaiDetik = toSeconds(`${jamMulaiAbsen}:00`);
-            const selesaiDetik = toSeconds(`${jamSelesaiAbsen}:00`);
-
-            const btn = document.getElementById("btnAbsen");
-
-            if (waktuSekarangDetik >= mulaiDetik && waktuSekarangDetik <= selesaiDetik) {
-                btn.disabled = false;
-                btn.classList.remove("btn-secondary");
-                btn.classList.add("btn-success");
-                btn.textContent = "Absen Sekarang";
-            } else {
-                btn.disabled = true;
-                btn.classList.remove("btn-success", "btn-primary");
-                btn.classList.add("btn-secondary");
-                btn.textContent = "Belum Waktunya Absen";
-            }
-        }
-
-        // Jalankan realtime setiap 1 detik
-        setInterval(updateWaktu, 1000);
-        updateWaktu();
-    </script> --}}
-
     <script>
         // Data jadwal dari controller (hasil query dari ScheduleTemplates)
         const jadwalAbsen = @json($day);
 
-        // Ambil hari ini (0 = Minggu, 1 = Senin, dst)
-        const hariSekarangIndex = new Date().getDay();
         const hariMap = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-        const hariIni = hariMap[hariSekarangIndex];
-
-        // Tampilkan hari di halaman
+        const hariIni = hariMap[new Date().getDay()];
         document.getElementById("hariSekarang").textContent = hariIni;
 
-        // Cari jadwal sesuai hari dari database
         const jadwalHariIni = jadwalAbsen.find(item => item.day === hariIni);
-
-        // Ambil jam mulai dan selesai (pastikan ada datanya)
         const jamMulaiAbsen = jadwalHariIni ? jadwalHariIni.start_time : "00:00";
         const jamSelesaiAbsen = jadwalHariIni ? jadwalHariIni.end_time : "00:00";
 
-        // Fungsi untuk update waktu realtime
+        // Konversi jam ke detik untuk perbandingan
+        const toSeconds = (waktu) => {
+            const [h, m, s = 0] = waktu.split(":").map(Number);
+            return h * 3600 + m * 60 + s;
+        };
+
         function updateWaktu() {
             const now = new Date();
-
-            // Jam sekarang (format HH:mm:ss)
             const jam = String(now.getHours()).padStart(2, "0");
             const menit = String(now.getMinutes()).padStart(2, "0");
             const detik = String(now.getSeconds()).padStart(2, "0");
             const waktuSekarang = `${jam}:${menit}:${detik}`;
             document.getElementById("jamSekarang").textContent = waktuSekarang;
 
-            // ===== ✅ Perbandingan waktu yang benar =====
-            const toSeconds = (waktu) => {
-                const [h, m, s = 0] = waktu.split(":").map(Number);
-                return h * 3600 + m * 60 + s;
-            };
-
             const waktuSekarangDetik = toSeconds(`${jam}:${menit}:${detik}`);
             const mulaiDetik = toSeconds(`${jamMulaiAbsen}:00`);
             const selesaiDetik = toSeconds(`${jamSelesaiAbsen}:00`);
 
             const btn = document.getElementById("btnAbsen");
+            let route = "";
+            let detail = "";
 
-            if (waktuSekarangDetik >= mulaiDetik && waktuSekarangDetik <= selesaiDetik) {
+            if (waktuSekarangDetik <= mulaiDetik + (2 * 3600)) {
+                btn.textContent = "Absen Masuk Sekarang";
+                btn.className = "btn btn-success";
                 btn.disabled = false;
-                btn.classList.remove("btn-secondary");
-                btn.classList.add("btn-success");
-                btn.textContent = "Absen Sekarang";
+                route = "{{ route('absen.masuk') }}";
+                detail = "Masuk";
+            } else if (waktuSekarangDetik > mulaiDetik + (2 * 3600) && waktuSekarangDetik < selesaiDetik) {
+                btn.textContent = "Absen Terlambat";
+                btn.className = "btn btn-warning";
+                btn.disabled = false;
+                route = "{{ route('absen.masuk') }}";
+                detail = "Terlambat";
+            } else if (waktuSekarangDetik >= selesaiDetik && waktuSekarangDetik < selesaiDetik + (2 * 3600)) {
+                btn.textContent = "Absen Pulang Sekarang";
+                btn.className = "btn btn-primary";
+                btn.disabled = false;
+                route = "{{ route('absen.pulang') }}";
+                detail = "Pulang";
+            } else if (waktuSekarangDetik >= selesaiDetik + (3 * 3600) && waktuSekarangDetik <= selesaiDetik + (5 * 3600)) {
+                btn.textContent = "Absen Lembur Sekarang";
+                btn.className = "btn btn-info";
+                btn.disabled = false;
+                route = "{{ route('absen.pulang') }}";
+                detail = "Lembur";
             } else {
-                btn.disabled = true;
-                btn.classList.remove("btn-success", "btn-primary");
-                btn.classList.add("btn-secondary");
                 btn.textContent = "Belum Waktunya Absen";
+                btn.className = "btn btn-secondary";
+                btn.disabled = true;
             }
+
+            btn.dataset.route = route;
+            btn.dataset.detail = detail;
         }
 
-        // Jalankan realtime setiap 1 detik
         setInterval(updateWaktu, 1000);
         updateWaktu();
+
+        document.getElementById("btnAbsen").addEventListener("click", async function() {
+            const btn = this;
+            const route = btn.dataset.route;
+            const keterangan = btn.dataset.detail;
+            const waktuSekarang = new Date().toLocaleTimeString("id-ID", {
+                hour12: false
+            }).replaceAll('.', ':');
+
+            if (!route) return;
+
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                const latitude = pos.coords.latitude;
+                const longitude = pos.coords.longitude;
+
+                btn.disabled = true;
+                const originalText = btn.textContent;
+                btn.textContent = "Mengirim...";
+
+                try {
+                    const res = await fetch(route, {
+                        method: "POST",
+                        credentials: "same-origin",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Accept": "application/json",
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                        },
+                        body: JSON.stringify({
+                            time_in: waktuSekarang,
+                            detail: keterangan,
+                            latitude_in: latitude,
+                            longitude_in: longitude
+                        })
+                    });
+
+                    const text = await res.text();
+                    let data;
+
+                    try {
+                        data = JSON.parse(text);
+                    } catch {
+                        console.error("Server response:", text);
+                        throw new Error("Respon server bukan JSON!");
+                    }
+
+                    if (!res.ok) throw new Error(data.message || "Gagal mengirim absen!");
+
+                    alert(data.message);
+                    btn.textContent = "Sudah Absen";
+                    btn.disabled = true;
+                } catch (err) {
+                    alert(err.message);
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                }
+            }, () => {
+                alert("Gagal mendapatkan lokasi. Pastikan GPS aktif!");
+            });
+        });
     </script>
 @endpush

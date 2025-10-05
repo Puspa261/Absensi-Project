@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Modernize Free</title>
     <link rel="shortcut icon" type="image/png" href="{{ asset('admin/assets/images/logos/favicon.png') }}" />
     <link rel="stylesheet" href="{{ asset('admin/assets/css/styles.min.css') }}" />
@@ -94,7 +95,7 @@
     <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
 
     <script src="https://kit.fontawesome.com/0d45b0b84c.js" crossorigin="anonymous"></script>
-    
+
     @stack('scripts')
 </body>
 
