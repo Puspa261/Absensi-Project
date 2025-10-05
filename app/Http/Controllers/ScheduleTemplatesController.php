@@ -67,7 +67,7 @@ class ScheduleTemplatesController extends Controller
      */
     public function create()
     {
-        $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
 
         return view('schedules.create', compact('days'));
     }

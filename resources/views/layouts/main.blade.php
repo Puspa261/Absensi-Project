@@ -94,22 +94,7 @@
     <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
 
     <script src="https://kit.fontawesome.com/0d45b0b84c.js" crossorigin="anonymous"></script>
-
-    {{-- Sweet Alert --}}
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <script>
-        @if (session('success'))
-            Swal.fire({
-                title: "Login Sukses!",
-                icon: "success",
-                text: "{{ session('success') }}",
-                showConfirmButton: false,
-                timer: 1500
-            });
-        @endif
-    </script>
-
+    
     @stack('scripts')
 </body>
 

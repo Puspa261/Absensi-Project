@@ -18,6 +18,7 @@ return new class extends Migration
             $table->time('time_out');
             $table->string('latitude_out');
             $table->string('longitude_out');
+            $table->string('distance');
             $table->timestamps();
         });
     }

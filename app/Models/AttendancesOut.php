@@ -13,6 +13,6 @@ class AttendancesOut extends Model
 
     public function user()
     {
-        return $this->hasMany(User::class, 'id', 'id_user');
+        return $this->belongsTo(User::class, 'id_user');
     }
 }

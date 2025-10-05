@@ -54,4 +54,14 @@ class User extends Authenticatable
     {
         return $this->belongsTo(JobTitles::class, 'id_job');
     }
+
+    public function absenMasuk()
+    {
+        return $this->hasMany(AttendancesIn::class, 'id_user');
+    }
+
+    public function absenKeluar()
+    {
+        return $this->hasMany(AttendancesOut::class, 'id_user');
+    }
 }
