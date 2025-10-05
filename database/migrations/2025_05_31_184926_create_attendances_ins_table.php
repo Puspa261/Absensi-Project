@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('id_user')->constrained('users')->cascadeOnUpdate()->cascadeOnDelete();
             $table->date('date');
             $table->time('time_in');
+            $table->enum('detail', ['Masuk', 'Terlambat']);
             $table->string('latitude_in');
             $table->string('longitude_in');
             $table->string('distance');
